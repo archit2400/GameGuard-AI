@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameGuard - Chat Moderation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+    .flagged {
+      animation: pulse 0.5s;
+    }
+  </style>
+</head>
+<body class="bg-black min-h-screen flex items-center justify-center p-4">
+  
+  <div class="w-full max-w-md">
+    <!-- Header -->
+    <div class="flex items-center justify-center gap-3 mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      </svg>
+      <h1 class="text-3xl font-bold text-green-500">GameGuard</h1>
+    </div>
+
+    <!-- Chat Box -->
+    <div class="bg-gray-900 rounded-xl shadow-xl border border-gray-800 overflow-hidden">
+      <!-- Title Bar -->
+      <div class="bg-gray-800 px-4 py-3 border-b border-gray-700">
+        <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          Chat Moderation
+        </h2>
+      </div>
+
+      <!-- Messages Area -->
+      <div id="messages" class="h-64 p-4 overflow-y-auto space-y-3">
+        <!-- Messages will appear here -->
+      </div>
+
+      <!-- Input Area -->
+      <div class="p-4 border-t border-gray-800 bg-gray-800">
+        <div class="flex gap-2">
+          <input 
+            id="userInput"
+            type="text" 
+            placeholder="Type your message..." 
+            class="flex-1 px-4 py-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            autocomplete="off"
+          >
+          <button 
+            onclick="sendMessage()"
+            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition flex items-center gap-2"
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Your original JavaScript preserved exactly -->
+  <script>
+    function sendMessage() {
+      const input = document.getElementById("userInput");
+      const message = input.value.trim();
+      if (message === "") return;
+  
+      fetch("/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: message })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const msgDiv = document.createElement("div");
+  
+        let baseClasses = "px-3 py-2 rounded border-l-4";
+        let warnText = "";
+  
+        if (data.toxicity > 0.85) {
+          // High toxicity
+          msgDiv.className = `${baseClasses} bg-red-900/40 text-red-300 border-red-500 flagged`;
+          msgDiv.innerHTML = `❌ ${message}<br><span class="text-red-400 text-sm font-semibold">This message is highly toxic. You may be blocked.</span>`;
+        } else if (data.flagged) {
+          // Mild toxicity
+          msgDiv.className = `${baseClasses} bg-yellow-900/40 text-yellow-300 border-yellow-500 flagged`;
+          msgDiv.innerHTML = `⚠️ ${message}<br><span class="text-yellow-400 text-sm font-semibold">Warning: Watch your language.</span>`;
+        } else {
+          // Normal
+          msgDiv.className = `${baseClasses} bg-green-900/30 text-green-300 border-green-500`;
+          msgDiv.textContent = `🌳 ${message}`;
+        }
+  
+        document.getElementById("messages").appendChild(msgDiv);
+        input.value = "";
+      });
+    }
+  </script>
+  
+</body>
+</html>

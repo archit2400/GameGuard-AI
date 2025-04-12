@@ -1,0 +1,35 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f0f0f0;
+    padding: 50px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .chatbox {
+    background: #fff;
+    padding: 20px;
+    width: 400px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  
+  #messages {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+  }
+  
+  .normal {
+    padding: 5px;
+    margin: 5px 0;
+    background: #e0ffe0;
+  }
+  
+  .flagged {
+    padding: 5px;
+    margin: 5px 0;
+    background: #ffcccc;
+    color: #a00;
+    font-weight: bold;
+  }
+  

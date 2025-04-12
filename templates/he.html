@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Chat Moderator</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: #000000;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #4CAF50;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .header svg {
+      width: 28px;
+      height: 28px;
+    }
+    
+    .chatbox {
+      width: 90%;
+      max-width: 500px;
+      margin: 0 auto;
+      background: rgba(20, 20, 20, 0.95);
+      padding: 1.5rem;
+      border-radius: 12px;
+      color: #fff;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .chatbox h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #4CAF50;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    #messages {
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    #messages div {
+      padding: 0.8rem 1rem;
+      margin: 0.8rem 0;
+      border-radius: 8px;
+      font-size: 1rem;
+      line-height: 1.4;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .flagged {
+      background-color: rgba(255, 75, 75, 0.15);
+      color: #ff6b6b;
+      border-left: 4px solid #ff4d4d;
+      animation: pulse 0.5s;
+    }
+    
+    .normal {
+      background-color: rgba(76, 175, 80, 0.15);
+      color: #a7ffa7;
+      border-left: 4px solid #4CAF50;
+    }
+    
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    input[type="text"] {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      transition: all 0.3s;
+      color: #000;
+    }
+    
+    input[type="text"]:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.5);
+    }
+    
+    button {
+      padding: 0.8rem 1.5rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    
+    button:hover {
+      background-color: #3e8e41;
+      transform: translateY(-2px);
+    }
+    
+    /* Custom scrollbar */
+    #messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    #messages::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    #messages::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+    
+    @media (max-width: 500px) {
+      .chatbox {
+        width: 95%;
+        padding: 1rem;
+      }
+      
+      .input-group {
+        flex-direction: column;
+      }
+      
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+    </svg>
+    <h1>GameGuard</h1>
+  </div>
+
+  <div class="chatbox">
+    <h2>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      </svg>
+      Chat Moderation
+    </h2>
+    <div id="messages"></div>
+    <div class="input-group">
+      <input type="text" id="userInput" placeholder="Type your message..." autocomplete="off">
+      <button onclick="sendMessage()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+        Send
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function sendMessage() {
+      const input = document.getElementById("userInput");
+      const message = input.value.trim();
+      if (message === "") return;
+
+      fetch("/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: message })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const msgDiv = document.createElement("div");
+        msgDiv.className = data.flagged ? "flagged" : "normal";
+        msgDiv.textContent = data.flagged
+          ? `⚠️  ${message}`
+          : `🌳  ${message}`;
+
+        document.getElementById("messages").appendChild(msgDiv);
+        input.value = "";
+        
+        // Auto-scroll to bottom
+        const messagesDiv = document.getElementById("messages");
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      });
+    }
+  </script>
+</body>
+</html>
