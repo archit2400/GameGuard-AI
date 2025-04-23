@@ -93,11 +93,11 @@
       const message = input.value.trim();
       if (message === "" || isBlocked) return;
   
-      fetch("http://127.0.0.1:5000/check", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: message, user_id: "user_123" })  // Optional: include user ID
-      })
+        fetch("https://gameguard-ai.onrender.com/check", {  // Updated to your Render URL
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ message: message, user_id: "user_123" })
+})
       .then(res => res.json())
       .then(data => {
         const msgDiv = document.createElement("div");
