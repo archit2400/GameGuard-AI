@@ -67,39 +67,66 @@
 
   <!-- Your original JavaScript preserved exactly -->
   <script>
+    let isBlocked = false;
+    let countdownInterval;
+  
+    function startCountdown(seconds) {
+      const msgDiv = document.createElement("div");
+      msgDiv.className = "px-3 py-2 rounded border-l-4 bg-red-900/40 text-red-300 border-red-500 flagged";
+      document.getElementById("messages").appendChild(msgDiv);
+  
+      clearInterval(countdownInterval);
+      countdownInterval = setInterval(() => {
+        if (seconds <= 0) {
+          clearInterval(countdownInterval);
+          msgDiv.innerHTML = "✅ You are now unblocked and can send messages.";
+          isBlocked = false;
+        } else {
+          msgDiv.innerHTML = `⏳ You are blocked. Please wait ${seconds} seconds.`;
+          seconds--;
+        }
+      }, 1000);
+    }
+  
     function sendMessage() {
       const input = document.getElementById("userInput");
       const message = input.value.trim();
-      if (message === "") return;
+      if (message === "" || isBlocked) return;
   
-      fetch("/check", {
+      fetch("http://127.0.0.1:5000/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: message })
+        body: JSON.stringify({ message: message, user_id: "user_123" })  // Optional: include user ID
       })
       .then(res => res.json())
       .then(data => {
         const msgDiv = document.createElement("div");
-  
         let baseClasses = "px-3 py-2 rounded border-l-4";
-        let warnText = "";
+  
+        if (data.blocked) {
+          isBlocked = true;
+          const seconds = data.message.match(/\d+/) ? parseInt(data.message.match(/\d+/)[0]) : 120;
+          startCountdown(seconds);
+          return;
+        }
   
         if (data.toxicity > 0.85) {
-          // High toxicity
           msgDiv.className = `${baseClasses} bg-red-900/40 text-red-300 border-red-500 flagged`;
           msgDiv.innerHTML = `❌ ${message}<br><span class="text-red-400 text-sm font-semibold">This message is highly toxic. You may be blocked.</span>`;
         } else if (data.flagged) {
-          // Mild toxicity
           msgDiv.className = `${baseClasses} bg-yellow-900/40 text-yellow-300 border-yellow-500 flagged`;
           msgDiv.innerHTML = `⚠️ ${message}<br><span class="text-yellow-400 text-sm font-semibold">Warning: Watch your language.</span>`;
         } else {
-          // Normal
           msgDiv.className = `${baseClasses} bg-green-900/30 text-green-300 border-green-500`;
           msgDiv.textContent = `🌳 ${message}`;
         }
   
         document.getElementById("messages").appendChild(msgDiv);
         input.value = "";
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        alert("There was an error processing the message.");
       });
     }
   </script>
